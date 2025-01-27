@@ -1,0 +1,415 @@
+{% extends 'email_app/base.html' %}
+
+{% block title %}Boring Tasks Automater{%endblock%}
+
+{% block content %}
+    <div class="wrapper">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-2"></div>
+            {% if user.is_authenticated %}
+            <div class="col-8 nana">
+                <div class="container main">
+
+                    <div class="dropdown-center">
+                        <button class="btn btn-secondary dropdown-toggle bg-dark case_type" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Case Type
+                        </button>
+                        <ul class="dropdown-menu text-center">
+                          <li><a class="dropdown-item" onclick="dev()" href="#">Dev</a></li>
+                          <li><a class="dropdown-item" onclick="store()" href="#">Store</a></li>
+                          <li><a class="dropdown-item" onclick="customer()" href="#">Customer</a></li>
+                          <li><a class="dropdown-item" onclick="quality()" href="#">Quality</a></li>
+                          <li><a class="dropdown-item" onclick="marketplace()" href="#">Marketplace</a></li>
+                          <li><a class="dropdown-item" onclick="behavior()" href="#">Behavior</a></li>
+                        </ul>
+                      </div>
+                </div>
+
+                <div class="container mt-3">
+
+                    <form action="{% url 'emails' %}" method="post" style="display: none;" id="BHForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="case_type" value="beh">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <input type="text" class="form-control" placeholder="Order Id" name="order_id">
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <input type="text" class="form-control" placeholder="Customer Name" name="customer_name">
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <input type="text" class="form-control" placeholder="Customer Phone Number" name="customer_phone">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <select class="form-select mt-3" aria-label="Default select example" name="store_id" required>
+                                    <option disabled>Store Name</option>
+                                    {% for store in stores %}
+                                        <option value="{{store.id}}">{{store.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="submit" value="Generate" class="btn mt-3 btn-dark">
+
+                    </form>
+
+                    <form action="{% url 'emails' %}" method="post" style="display: none;" id="DVForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="case_type" value="dev">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <input type="text" class="form-control" placeholder="Customer Name" name="customer_name">
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <input type="text" class="form-control" placeholder="Customer Email" name="customer_email">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <input type="text" class="form-control" placeholder="Customer Phone Number" name="customer_phone">
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-3">
+                                <select class="form-select" aria-label="Default select example" name="dev_case">
+                                    <option disabled>Case</option>
+                                    <option value="wallet">Wallet ID</option>
+                                    <option value="phone">Registered Phone Number</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="submit" value="Generate" class="btn mt-3 btn-dark">
+                    </form>
+
+
+                    <form action="{% url 'emails' %}" method="post" style="display: block;" id="STForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="case_type" value="store">
+                        <input type="text" class="form-control" placeholder="Order Id" name="order_id">
+
+                        <div class="row">
+                            <div class="col">
+                                <select class="form-select mt-3" aria-label="Default select example" name="store_id" required>
+                                    <option disabled>Store Name</option>
+                                    {% for store in stores %}
+                                        <option value="{{store.id}}">{{store.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col">
+                                <select class="form-select mt-3" aria-label="Default select example" name="store_case">
+                                    <option selected>Case</option>
+                                    <option value="missing">Missing</option>
+                                    <option value="damaged">Damaged</option>
+                                    <option value="wrong">Wrong</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="submit" value="Generate" class="btn mt-3 btn-dark" onclick="showEmailOutput()">
+                    </form>
+
+
+                    <form action="{% url 'emails' %}" method="post" style="display: none;" id="CSForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="case_type" value="customer">
+                        <input type="text" class="form-control" placeholder="Order Id" name="order_id">
+
+                        <select class="form-select mt-3" aria-label="Default select example" name="customer_case">
+                            <option selected>Case</option>
+                            <option value="image">image</option>
+                            <option value="activate_wallet">activate wallet</option>
+                            <option value="bank">bank details</option>
+                            <option value="refunded_wallet">refunded to wallet</option>
+                            <option value="refunded_bank">refunded to bank</option>
+                            <option value="clarification">extra details</option>
+                            <option value="unreachable">unreachable</option>
+
+                        </select>
+                        <div class="row p-3 mt-3 text-start">
+                            <div class="form-check col">
+                                <input class="form-check-input" type="radio" name="customer_language" value="arabic" id="flexRadioDefault1" checked>
+                                <label class="form-check-label" for="flexRadioDefault1">
+                                    Arabic
+                                </label>
+                            </div>
+                            <div class="form-check col">
+                                <input class="form-check-input" type="radio" name="customer_language" value="english" id="flexRadioDefault2">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                    English
+                                </label>
+                            </div>
+                        </div>
+                        <input type="submit" value="Generate" class="btn mt-3 btn-dark" onclick="showEmailOutput()">
+                    </form>
+
+                    <form action="{% url 'emails' %}" method="post" style="display: none;" id="QAForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="case_type" value="quality">
+                        <input type="text" class="form-control" placeholder="Order Id" name="order_id">
+
+                        <div class="row">
+                            <div class="col">
+                                <select class="form-select mt-3" aria-label="Default select example" name="store_id" required>
+                                    <option disabled>Store Name</option>
+                                    {% for store in stores %}
+                                        <option value="{{store.id}}">{{store.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col">
+                                <select class="form-select mt-3" name="quality_case" aria-label="Default select example">
+
+                                    <option disabled>Case</option>
+                                    <option value="Rotten">Rotten</option>
+                                    <option value="Bad Smell">Bad Smell</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Near Expiry">Near Expiry</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <select class="form-select mt-3" aria-label="Default select example" name="resolution">
+                            <option disabled>Resolution</option>
+                            {% for resolution in resolutions %}
+                                <option value="{{resolution}}">{{resolution}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <input type="text" class="form-control mt-3" placeholder="Item Name" name="item_name">
+                        <input type="text" class="form-control mt-3" placeholder="Barcode" name="barcode">
+                        <input type="text" class="form-control mt-3" placeholder="Customer Name" name="customer_name">
+                        <input type="text" class="form-control mt-3" placeholder="Customer Phone Number" name="customer_phone">
+
+
+                        <input type="submit" value="Generate" class="btn mt-3 btn-dark">
+                    </form>
+
+
+                    <form action="{% url 'emails' %}" method="post" style="display: none;" id="MPForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="case_type" value="marketplace">
+                        <input type="text" class="form-control" placeholder="Consignment ID" name="consignment_id">
+
+                        <div class="row">
+                            <!--
+                            <div class="col">
+                                <select class="form-select mt-3" aria-label="Default select example" onchange="sellerEmailInput()" id="seller" name="going_to">
+                                    <option selected >To</option>
+                                    <option value="seller">Seller</option>
+                                    <option value="imile">Imile</option>
+                                    <option value="aramex">Aramex</option>
+                                </select>
+                            </div>
+                            -->
+
+                            <div class="col">
+                                <select class="form-select mt-3" aria-label="Default select example" name="mp_case">
+                                    <option selected>Case</option>
+                                    <option value="delay">Delay</option>
+                                    <option value="cancellation">Cancellation</option>
+                                    <option value="damaged">Damaged Item</option>
+                                    <option value="wrong">Wrong Item</option>
+                                    <option value="return">Return within 7 days</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <input type="text" class="form-control mt-3" placeholder="Seller Email" style="display: block;" id="sellerEmail" name="seller_email">
+                        <!--
+                        <select class="form-select mt-3" aria-label="Default select example" name="mp_period">
+                            <option selected>Period</option>
+                            <option value="first">First Day</option>
+                            <option value="second">Second Day</option>
+                            <option value="third">Third day onwards</option>
+                        </select> -->
+                        <div class="col-md-6 col-sm-12 mt-3">
+                            <input type="text" class="form-control" placeholder="Item Name" name="item_name">
+                        </div>
+
+                        <div class="col-md-6 col-sm-12 mt-3">
+                            <input type="number" class="form-control" placeholder="Quantity" name="quantity">
+                        </div>
+
+                        <div class="col-md-6 col-sm-12 mt-3">
+                            <input type="number" class="form-control" placeholder="Unit Price" name="price">
+                        </div>
+
+                        <div class="col-md-6 col-sm-12 mt-3">
+                            <input type="text" class="form-control" placeholder="Comment" name="comment">
+                        </div>
+
+                        <input type="submit" value="Generate" class="btn mt-3 btn-dark">
+
+                    </form>
+                </div>
+            </div>
+        <div class="col-2"></div>
+    </div>
+    </div>
+
+    <div class="container text-center" id="email_output" {{email_output_display | safe}}>
+        <div class="row" >
+            <div class="col-2"></div>
+            <div class="col-8">
+                <br>
+                <div class="row" {{to_display | safe}}>
+                    <div class="col-9">
+                        <div class="form-floating mb-2">
+                            <input type="text" readonly class="form-control-plaintext" id="toFloatingEmptyPlaintextInput" value="{{to}}" >
+                            <label for="toFloatingEmptyPlaintextInput">To</label>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <button type="button" class="btn btn-secondary btn-sm mt-3" onclick="copyToClipboard('toFloatingEmptyPlaintextInput')">Copy</button>
+
+                    </div>
+                </div>
+                <div class="row" {{cc_display | safe}}>
+                    <div class="col-9">
+                        <div class="form-floating mb-2">
+                            <input type="text" readonly class="form-control-plaintext" id="ccFloatingEmptyPlaintextInput" value="{{cc}}" >
+                            <label for="ccFloatingEmptyPlaintextInput">CC</label>
+                        </div>
+                    </div>
+                    <div class="col-3"><button type="button" class="btn btn-secondary btn-sm mt-3" onclick="copyToClipboard('ccFloatingEmptyPlaintextInput')">Copy</button></div>
+                </div>
+
+                <div class="row" {{subject_display | safe}}>
+                    <div class="col-9">
+                        <div class="form-floating mb-2">
+                            <input type="text" readonly class="form-control-plaintext" id="subjectFloatingEmptyPlaintextInput" value=" - {{order_id}}" >
+                            <label for="subjectFloatingEmptyPlaintextInput">Subject</label>
+                        </div>
+                    </div>
+                    <div class="col-3"><button type="button" class="btn btn-secondary btn-sm mt-3" onclick="copyToClipboard('subjectFloatingEmptyPlaintextInput')">Copy</button></div>
+                </div>
+
+                <div class="row">
+                    <div class="form-floating mb-2">
+                        <div class="form-control" id="bodyFloatingEmptyPlaintextInput">{{email_body | safe}}</div>
+                        <label for="bodyFloatingEmptyPlaintextInput">Body</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-9"></div>
+                    <div class="col-3"><button type="button" class="btn btn-secondary btn-sm mt-3" onclick="copyToClipboardText('bodyFloatingEmptyPlaintextInput')">Copy</button></div>
+                </div>
+                <div class="row">
+                    <div class="input-group has-validation attachment" {{attachment_warning | safe}}>
+                        <div class="form-floating is-invalid">
+                        </div>
+                        <div class="invalid-feedback mb-5">
+                        Don't forget to attach the images!
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-2"></div>
+        </div>
+    </div>
+
+
+
+<!--
+    <footer class="footer bg-dark">
+        <div class="container p-2">
+            <span class="text-muted">Monzir &copy; 2024</span>
+        </div>
+
+    </footer>
+-->
+
+    {% else %}
+    <p><a href="{% url 'login' %}">Login</a></p>
+{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+    <script>
+        function dev(){
+            document.getElementById("DVForm").style.display = "block"
+            document.getElementById("STForm").style.display = "none"
+            document.getElementById("QAForm").style.display = "none"
+            document.getElementById("MPForm").style.display = "none"
+            document.getElementById("CSForm").style.display = "none"
+            document.getElementById("BHForm").style.display = "none"
+        }
+        function store(){
+            document.getElementById("DVForm").style.display = "none"
+            document.getElementById("STForm").style.display = "block"
+            document.getElementById("QAForm").style.display = "none"
+            document.getElementById("MPForm").style.display = "none"
+            document.getElementById("CSForm").style.display = "none"
+            document.getElementById("BHForm").style.display = "none"
+        }
+        function quality(){
+            document.getElementById("DVForm").style.display = "none"
+            document.getElementById("STForm").style.display = "none"
+            document.getElementById("QAForm").style.display = "block"
+            document.getElementById("MPForm").style.display = "none"
+            document.getElementById("CSForm").style.display = "none"
+            document.getElementById("BHForm").style.display = "none"
+        }
+        function marketplace(){
+            document.getElementById("DVForm").style.display = "none"
+            document.getElementById("STForm").style.display = "none"
+            document.getElementById("QAForm").style.display = "none"
+            document.getElementById("MPForm").style.display = "block"
+            document.getElementById("CSForm").style.display = "none"
+            document.getElementById("BHForm").style.display = "none"
+        }
+        function customer(){
+            document.getElementById("DVForm").style.display = "none"
+            document.getElementById("STForm").style.display = "none"
+            document.getElementById("QAForm").style.display = "none"
+            document.getElementById("MPForm").style.display = "none"
+            document.getElementById("CSForm").style.display = "block"
+            document.getElementById("BHForm").style.display = "none"
+        }
+        function behavior(){
+            document.getElementById("DVForm").style.display = "none"
+            document.getElementById("STForm").style.display = "none"
+            document.getElementById("QAForm").style.display = "none"
+            document.getElementById("MPForm").style.display = "none"
+            document.getElementById("CSForm").style.display = "none"
+            document.getElementById("BHForm").style.display = "block"
+        }
+        function sellerEmailInput(){
+            const selectedValue = document.getElementById('seller').value;
+            console.log(selectedValue);
+
+            if (selectedValue === "seller"){
+                document.getElementById("sellerEmail").style.display = "block"
+            } else {
+                document.getElementById("sellerEmail").style.display = "none"
+
+            }
+        }
+        function showEmailOutput(){
+            document.getElementById.style.display = "block"
+        }
+        function hideEmailOutput(){
+            document.getElementById.style.display = "none"
+        }
+
+        const quill = new Quill('#bodyFloatingEmptyPlaintextInput', {
+         theme: 'snow'
+        });
+        function autoResize() {
+            const editor = document.getElementById('bodyFloatingEmptyPlaintextInput') // Target the editor content area
+            editor.style.height = 'auto'; // Reset height
+            editor.style.height = editor.scrollHeight + 'px'; // Set to scroll height
+        }
+
+        // Listen for text changes
+        quill.on('text-change', autoResize);
+
+        // Initial resize
+        autoResize();
+
+    </script>
+
+{% endblock %}

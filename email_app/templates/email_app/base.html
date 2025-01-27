@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Boring Tasks Automator{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <style>
+
+        html, body {
+            min-height: 100%;
+        }
+        .wrapper {
+            min-height: 80vh;
+        }
+        .navbar {
+            position: relative;
+        }
+        .navbar-title {
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .logout {
+            margin-right: 1em;
+        }
+        .main{
+            margin-top: 10%;
+        }
+        .case_type {
+            padding-left: 20%;
+            padding-right: 20%;
+        }
+        .attachment {
+            display: none;
+        }
+        textarea {
+            min-height: fit-content;
+        }
+        #bodyFloatingEmptyPlaintextInput{
+            font-family: 'Calibri', sans-serif;
+            font-size: 16px;
+            overflow: hidden;
+            max-height: 500px;
+        }
+        .align-items-center {
+            display: flex;
+            align-items: center;
+        }
+        .text-arabic {
+            direction: rtl;
+            text-align: right;
+        }
+        accordion-button.collapsed {
+            background: gray
+        }
+
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <div class="navbar-title">
+                <span class="navbar-brand">Boring Tasks Automater</span>
+            </div>
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+
+                <button class="btn btn-outline-danger logout" type="submit">Logout</button>
+            </form>
+        </div>
+
+    </nav>
+
+    {% block content %}
+
+    {% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        function copyToClipboard(elementId){
+            const inputElement = document.getElementById(elementId);
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(inputElement.value);
+        }
+        function copyToClipboardText(elementId){
+            const textElement = document.getElementById(elementId);
+            const range = document.createRange();
+            range.selectNodeContents(textElement);
+
+            const selection = window.getSelection();
+            selection.removeAllRanges(); // Clear existing selections
+            selection.addRange(range); // Select the text in the div
+
+            // Execute the copy command
+            try {
+                const successful = document.execCommand('copy');
+            } catch (err) {
+                console.error("Failed to copy: ", err);
+            }
+
+            selection.removeAllRanges(); // Clear selection after copying
+
+        }
+    </script>
+  </body>
+</html>
